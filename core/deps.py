@@ -37,6 +37,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 def get_db():
     """Dependency to get database session"""
-    # In a real app, you would yield a database session here
-    # For now, we'll just return None
-    return None
+    from core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

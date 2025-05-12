@@ -173,3 +173,8 @@ ENV/
 
 # Local development
 .env
+.vercel
+
+# Vercel
+vercel.json
+

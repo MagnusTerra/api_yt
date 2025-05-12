@@ -41,22 +41,22 @@ def get_user_by_username(db: Session, username: str) -> Optional[User]:
 
 def create_user(db: Session, user: UserCreate) -> User:
     """Create a new user"""
-    # In a real app, this would create a user in the database
-    # For now, just return a dummy user
-    return User(
-        id=1,
+    db_user = UserModel(
         username=user.username,
         email=user.email,
-        is_active=True,
-        is_superuser=False,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
         created_at=datetime.now(),
         hashed_password=get_password_hash(user.password)
     )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+    
 
 def update_user(db: Session, user_id: int, user_in: UserUpdate) -> Optional[User]:
     """Update a user"""
-    # In a real app, this would update the user in the database
-    # For now, just return a dummy user
     user = get_user(db, user_id)
     if user:
         user.created_at = user.created_at or datetime.now()
@@ -64,6 +64,9 @@ def update_user(db: Session, user_id: int, user_in: UserUpdate) -> Optional[User
 
 def delete_user(db: Session, user_id: int) -> bool:
     """Delete a user"""
-    # In a real app, this would delete the user from the database
-    # For now, just return True
-    return True
+    user = get_user(db, user_id)
+    if user:
+        db.delete(user)
+        db.commit()
+        return True
+    return False

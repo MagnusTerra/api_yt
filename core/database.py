@@ -1,12 +1,17 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
+import dotenv
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+dotenv.load_dotenv()
+
+#SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+URL_DB = os.getenv("POSTGRES_PRISMA_URL")
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -19,3 +24,13 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def test_db_connection() -> bool:
+    """Test database connection"""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return False
